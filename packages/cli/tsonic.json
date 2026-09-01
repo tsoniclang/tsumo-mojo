@@ -1,0 +1,33 @@
+{
+  "$schema": "https://tsonic.org/schema/v1.json",
+  "entryPoint": "cli-main.ts",
+  "rootDir": "src",
+  "outDir": "out",
+  "targets": [
+    {
+      "id": "mojo",
+      "surfaces": ["js"],
+      "options": {
+        "packageName": "tsumo",
+        "outputType": "bin",
+        "projectFile": "../../pixi.toml",
+        "compiler": {
+          "executable": "scripts/mojo-provider.sh",
+          "languageServerExecutable": "scripts/mojo-lsp-provider.sh",
+          "workingDirectory": "../.."
+        },
+        "providerPackages": [
+          {
+            "kind": "package",
+            "id": "tsumo-platform",
+            "alias": "tsumo-platform",
+            "packageName": "tsumo_platform",
+            "version": "0.0.1",
+            "importRoot": "../../mojo",
+            "sourceRoot": "../../mojo/tsumo_platform"
+          }
+        ]
+      }
+    }
+  ]
+}
