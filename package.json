@@ -1,0 +1,30 @@
+{
+  "name": "tsumo-mojo",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build:tsonic && npm run build:mojo",
+    "build:tsonic": "bash scripts/build-tsonic.sh",
+    "build:mojo": "bash scripts/build-mojo.sh",
+    "test:compiled": "TSUMO_TEST_ROOT=.temp/test-runs/compiled pixi run build/tsumo-tests",
+    "test": "node --test \"test/**/*.test.mjs\"",
+    "verify-all": "bash scripts/verify-all.sh"
+  },
+  "devDependencies": {
+    "@tsonic/cli": "file:../tsonic/packages/cli",
+    "@tsonic/host": "file:../tsonic/packages/host",
+    "@tsonic/mojo-js": "file:../mojo-js",
+    "@tsonic/mojo-nodejs": "file:../mojo-nodejs",
+    "@tsonic/mojo-runtime": "file:../mojo-runtime",
+    "@tsonic/source-core": "file:../tsonic/packages/source-core",
+    "@tsonic/target-api": "file:../tsonic/packages/target-api",
+    "@tsonic/target-mojo": "file:../tsonic-mojo",
+    "@tsonic/tsts": "file:../tsonic/packages/tsts"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

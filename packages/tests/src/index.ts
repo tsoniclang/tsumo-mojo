@@ -1,0 +1,32 @@
+import { runContentAndMenuTests } from "./content-and-menu.test.js";
+import { runDocsDomainTests } from "./docs-domain.test.js";
+import { runFilesystemBoundaryTests } from "./filesystem-boundaries.test.js";
+import { runInputBoundaryTests } from "./input-boundaries.test.js";
+import { runLayoutCacheTests } from "./layout-cache.test.js";
+import { runOutputPlanTests } from "./output-plan.test.js";
+import { runResourcePipelineTests } from "./resource-pipeline.test.js";
+import { runScaffoldAndBuildTests } from "./scaffold-and-build.test.js";
+import { runTemplateControlFlowTests } from "./template-control-flow.test.js";
+import { runTemplateFunctionSemanticsTests } from "./template-function-semantics.test.js";
+import { runTemplatePageContextTests } from "./template-page-context.test.js";
+import { runTemplateRuntimeTests } from "./template-runtime.test.js";
+import { runThemeCompatibilityTests } from "./theme-compatibility.test.js";
+import { completeTests } from "./test-root.js";
+
+export function main(): void {
+  runScaffoldAndBuildTests();
+  runInputBoundaryTests();
+  runLayoutCacheTests();
+  runFilesystemBoundaryTests();
+  runContentAndMenuTests();
+  runDocsDomainTests();
+  runOutputPlanTests();
+  runResourcePipelineTests();
+  runTemplateControlFlowTests();
+  runTemplateFunctionSemanticsTests();
+  runTemplatePageContextTests();
+  runTemplateRuntimeTests();
+  runThemeCompatibilityTests();
+  completeTests(74);
+  return;
+}
