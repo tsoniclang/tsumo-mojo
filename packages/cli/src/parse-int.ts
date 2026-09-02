@@ -1,8 +1,9 @@
 import type { int32 } from "@tsonic/core/types.js";
+import { isDecimalIntegerSyntax } from "./decimal-integer-syntax.js";
 
 export const parseIntArg = (value: string): int32 | undefined => {
   const trimmed = value.trim();
-  if (!/^-?\d+$/.test(trimmed)) return undefined;
+  if (!isDecimalIntegerSyntax(trimmed, true)) return undefined;
   const parsed = Number.parseInt(trimmed, 10);
   if (
     Number.isInteger(parsed) &&

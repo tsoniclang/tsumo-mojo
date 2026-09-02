@@ -1,12 +1,13 @@
 import process from "node:process";
 import { createTsumoError } from "@tsumo/engine/index.js";
+import { isDecimalIntegerSyntax } from "./decimal-integer-syntax.js";
 
 export const readSourceDateEpoch = (): Date | undefined => {
   const raw = process.env["SOURCE_DATE_EPOCH"];
   if (raw === undefined) return undefined;
 
   const value = raw.trim();
-  if (!/^\d+$/.test(value)) {
+  if (!isDecimalIntegerSyntax(value, false)) {
     throw createTsumoError("TSUMO_SOURCE_DATE_EPOCH_INVALID", "SOURCE_DATE_EPOCH must be a non-negative integer number of seconds");
   }
 
