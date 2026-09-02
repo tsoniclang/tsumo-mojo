@@ -23,7 +23,11 @@ const platformBoundaryFiles = new Set([
   "packages/engine/src/markdown/platform.ts",
   "packages/engine/src/resources/image-provider.ts",
   "packages/engine/src/utils/html.ts",
+  "packages/engine/src/utils/regular-expressions.ts",
 ]);
+const platformMojoFiles = repositoryFiles.filter((path) =>
+  path.startsWith("mojo/tsumo_platform/") && path.endsWith(".mojo")
+);
 
 test("authored modules stay within the reviewed size boundary", () => {
   const oversized = [
@@ -126,7 +130,7 @@ test("filesystem calls use standard Node option objects", () => {
   assert.deepEqual(violations, []);
 });
 
-test("native Markdown, HTML, and image work stays behind one Mojo package", () => {
+test("native Markdown, HTML, image, and regular-expression work stays behind one Mojo package", () => {
   const violations = [];
   for (const path of sourceFiles) {
     const text = readFileSync(join(repoRoot, path), "utf8");
@@ -140,13 +144,15 @@ test("native Markdown, HTML, and image work stays behind one Mojo package", () =
   }
   assert.deepEqual(violations, []);
 
-  const platform = readFileSync(join(repoRoot, "mojo/tsumo_platform/__init__.mojo"), "utf8");
+  const platform = platformMojoFiles.map((path) =>
+    readFileSync(join(repoRoot, path), "utf8")
+  ).join("\n");
   assert.match(platform, /from std\.python import Python, PythonObject/u);
   assert.match(platform, /markdown_it/u);
   assert.match(platform, /from PIL import Image/u);
 
   const otherMojo = repositoryFiles.filter(
-    (path) => path.endsWith(".mojo") && path !== "mojo/tsumo_platform/__init__.mojo",
+    (path) => path.endsWith(".mojo") && !path.startsWith("mojo/tsumo_platform/"),
   );
   assert.deepEqual(
     otherMojo.filter((path) =>
@@ -163,10 +169,9 @@ test("regular expression helpers use the single pinned Mojo platform boundary", 
     join(repoRoot, "packages/engine/src/utils/regular-expressions.ts"),
     "utf8",
   );
-  const platform = readFileSync(
-    join(repoRoot, "mojo/tsumo_platform/__init__.mojo"),
-    "utf8",
-  );
+  const platform = platformMojoFiles.map((path) =>
+    readFileSync(join(repoRoot, path), "utf8")
+  ).join("\n");
   const pixi = readFileSync(join(repoRoot, "pixi.toml"), "utf8");
   assert.match(source, /@tsonic\/mojo\/packages\/tsumo-platform\/index\.js/u);
   assert.doesNotMatch(source, /\bRegExp\b|\.matchAll\(/u);
