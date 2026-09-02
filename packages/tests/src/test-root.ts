@@ -55,10 +55,10 @@ export const createDirectory = (path: string): void => {
 };
 
 export const writeTextFile = (path: string, content: string): void => {
-  writeFileSync(path, content, "utf-8");
+  writeFileSync(path, content);
 };
 
-export const readTextFile = (path: string): string => readFileSync(path, "utf-8");
+export const readTextFile = (path: string): string => readFileSync(path, "utf8");
 
 export const pathExists = (path: string): boolean => existsSync(path);
 
