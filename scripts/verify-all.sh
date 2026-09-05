@@ -46,12 +46,23 @@ authored_before="$(find "$ROOT/mojo" -type f -name '*.mojo' -print0 | sort -z | 
 authored_after="$(find "$ROOT/mojo" -type f -name '*.mojo' -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
 test "$authored_before" = "$authored_after"
 for project in engine cli tests; do
-  generated_root="$ROOT/packages/$project/out/mojo/src"
-  generated_before="$(find "$generated_root" -type f -name '*.mojo' -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
-  "$PIXI_BIN" run --manifest-path "$ROOT/pixi.toml" mojo format -l 100 "$generated_root" \
+  generated_root="$ROOT/packages/$project/out/mojo"
+  format_root="$VERIFY_ROOT/generated-$project-format"
+  mapfile -d '' generated_sources < <(find "$generated_root" -type f -name '*.mojo' -print0 | sort -z)
+  test "${#generated_sources[@]}" -gt 0
+  format_sources=()
+  for source in "${generated_sources[@]}"; do
+    destination="$format_root/${source#"$generated_root/"}"
+    mkdir -p "$(dirname "$destination")"
+    cp "$source" "$destination"
+    format_sources+=("$destination")
+  done
+  "$PIXI_BIN" run --manifest-path "$ROOT/pixi.toml" mojo format --quiet "${format_sources[@]}" \
     2>&1 | tee "$VERIFY_ROOT/generated-$project-format.log"
-  generated_after="$(find "$generated_root" -type f -name '*.mojo' -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
-  test "$generated_before" = "$generated_after"
+  for source in "${generated_sources[@]}"; do
+    diff -u "$source" "$format_root/${source#"$generated_root/"}"
+  done
+  echo "Formatter checked ${#generated_sources[@]} generated modules: $project"
 done
 
 echo "=== Mojo products ==="
