@@ -10,7 +10,7 @@
     "build:tsonic": "bash scripts/build-tsonic.sh",
     "build:mojo": "bash scripts/build-mojo.sh",
     "test:compiled": "TSUMO_TEST_ROOT=.temp/test-runs/compiled pixi run build/tsumo-tests",
-    "test": "node --test \"test/**/*.test.mjs\"",
+    "test": "pixi run node --test \"test/**/*.test.mjs\"",
     "verify-all": "bash scripts/verify-all.sh"
   },
   "devDependencies": {

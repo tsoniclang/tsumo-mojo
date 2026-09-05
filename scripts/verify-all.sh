@@ -68,7 +68,8 @@ TSUMO_TEST_ROOT="$VERIFY_ROOT/compiled-test-runs" \
   2>&1 | tee "$VERIFY_ROOT/compiled-tests.log"
 
 echo "=== end-to-end application tests ==="
-node --test "test/**/*.test.mjs" 2>&1 | tee "$VERIFY_ROOT/e2e.log"
+"$PIXI_BIN" run --manifest-path "$ROOT/pixi.toml" \
+  node --test "test/**/*.test.mjs" 2>&1 | tee "$VERIFY_ROOT/e2e.log"
 
 echo "=== tracked dependency immutability ==="
 git diff --exit-code -- package-lock.json pixi.lock
