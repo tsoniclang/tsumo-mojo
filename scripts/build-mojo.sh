@@ -8,32 +8,31 @@ mkdir -p "$ROOT/build" "$ROOT/.temp/build-runs"
 LOG_ROOT="${TSUMO_MOJO_LOG_DIR:-$(mktemp -d "$ROOT/.temp/build-runs/mojo-XXXXXXXX")}"
 mkdir -p "$LOG_ROOT"
 
-mojo_command() {
+build_project() {
   local project="$1"
-  shift
+  local artifact="$2"
   local output="$ROOT/packages/$project/out/mojo"
   /usr/bin/time -v timeout "${TSUMO_MOJO_TIMEOUT:-15m}" \
+    prlimit --as="${TSUMO_MOJO_MEMORY_LIMIT:-12884901888}" -- \
     "$PIXI_BIN" run --manifest-path "$ROOT/pixi.toml" \
-    mojo "$@" -I "$output/src" -I "$output/packages" -I "$ROOT/mojo"
+    node "$ROOT/scripts/build-generated-project.mjs" "$output" "$ROOT/build/$artifact" "$ROOT/mojo"
 }
 
-mojo_command engine precompile \
-  "$ROOT/packages/engine/out/mojo/src/tsumo_engine" \
-  -o "$ROOT/build/tsumo_engine.mojoc" \
-  >"$LOG_ROOT/engine.log" 2>&1
-
-mojo_command cli build \
-  "$ROOT/packages/cli/out/mojo/src/main.mojo" \
-  -o "$ROOT/build/tsumo" \
-  >"$LOG_ROOT/cli.log" 2>&1
-
-mojo_command tests build \
-  "$ROOT/packages/tests/out/mojo/src/main.mojo" \
-  -o "$ROOT/build/tsumo-tests" \
-  >"$LOG_ROOT/tests.log" 2>&1
-
+failed=0
 for project in engine cli tests; do
-  echo "=== Mojo $project: PASS ==="
+  case "$project" in
+    engine) artifact="tsumo_engine.mojoc" ;;
+    cli) artifact="tsumo" ;;
+    tests) artifact="tsumo-tests" ;;
+  esac
+  if build_project "$project" "$artifact" >"$LOG_ROOT/$project.log" 2>&1; then
+    status="PASS"
+  else
+    status="FAIL"
+    failed=1
+  fi
+  echo "=== Mojo $project: $status ==="
   cat "$LOG_ROOT/$project.log"
 done
 echo "Mojo build logs: $LOG_ROOT"
+test "$failed" -eq 0
