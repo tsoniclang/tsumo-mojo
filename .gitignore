@@ -4,7 +4,7 @@ packages/*/out/
 .temp/
 .analysis/
 .pixi/
-build/
+/build/
 *.mojoc
 __pycache__/
 *.py[cod]

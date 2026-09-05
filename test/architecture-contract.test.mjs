@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { execFileSync, spawnSync } from "node:child_process";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { join, relative } from "node:path";
 import test from "node:test";
 
 import { repoRoot } from "./helpers.mjs";
@@ -11,6 +11,17 @@ const repositoryFiles = execFileSync(
   ["ls-files", "--cached", "--others", "--exclude-standard", "-z"],
   { cwd: repoRoot, encoding: "utf8" },
 ).split("\0").filter((path) => path !== "" && existsSync(join(repoRoot, path)));
+const trackedFiles = new Set(execFileSync(
+  "git",
+  ["ls-files", "--cached", "-z"],
+  { cwd: repoRoot, encoding: "utf8" },
+).split("\0").filter((path) => path !== ""));
+const authoredFiles = [
+  "packages/cli/src",
+  "packages/engine/src",
+  "packages/tests/src",
+  "mojo",
+].flatMap((root) => filesBelow(join(repoRoot, root)));
 
 const sourceFiles = repositoryFiles.filter((path) =>
   /^packages\/(?:cli|engine|tests)\/src\/.*\.ts$/u.test(path)
@@ -39,6 +50,22 @@ test("authored modules stay within the reviewed size boundary", () => {
     return lines > 600 ? [path + ": " + lines + " lines"] : [];
   });
   assert.deepEqual(oversized, []);
+});
+
+test("every authored source file is tracked and outside every ignore rule", () => {
+  const untracked = authoredFiles.filter((path) => !trackedFiles.has(path));
+  const ignored = authoredFiles.filter((path) => {
+    const result = spawnSync(
+      "git",
+      ["check-ignore", "--no-index", "--quiet", "--", path],
+      { cwd: repoRoot, encoding: "utf8" },
+    );
+    assert.equal(result.error, undefined, path);
+    assert.equal(result.status === 0 || result.status === 1, true, `${path}: ${result.stderr}`);
+    return result.status === 0;
+  });
+  assert.deepEqual(untracked, []);
+  assert.deepEqual(ignored, []);
 });
 
 test("product source contains no retired, compatibility, or heuristic mechanisms", () => {
@@ -248,8 +275,9 @@ test("generated and investigation artifacts remain untracked and ignored", () =>
   const forbiddenTracked = repositoryFiles.filter((path) =>
     path.startsWith(".analysis/") ||
     path.startsWith(".temp/") ||
+    path.startsWith("build/") ||
     /(^|\/)public\d*(\/|$)/u.test(path) ||
-    /\/(?:out|dist|bin|obj|node_modules|build|target)\//u.test("/" + path + "/")
+    /^packages\/[^/]+\/(?:out|dist|bin|obj|node_modules|target)\//u.test(path)
   );
   assert.deepEqual(forbiddenTracked, []);
   for (const path of [
@@ -268,4 +296,15 @@ test("generated and investigation artifacts remain untracked and ignored", () =>
 
 function readJson(path) {
   return JSON.parse(readFileSync(path, "utf8"));
+}
+
+function filesBelow(root) {
+  if (!existsSync(root)) return [];
+  const files = [];
+  for (const entry of readdirSync(root, { withFileTypes: true })) {
+    const path = join(root, entry.name);
+    if (entry.isDirectory()) files.push(...filesBelow(path));
+    else if (entry.isFile()) files.push(relative(repoRoot, path));
+  }
+  return files.sort();
 }
