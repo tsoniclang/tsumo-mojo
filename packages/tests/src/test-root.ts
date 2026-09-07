@@ -12,6 +12,8 @@ import { join, resolve } from "node:path";
 import process from "node:process";
 
 let completedTests = 0;
+let attemptedTests = 0;
+let failedTests = 0;
 
 export class Assert {
   static StringEqual(expected: string, actual: string | undefined): void {
@@ -75,16 +77,20 @@ export const deleteTestDirectory = (path: string): void => {
 };
 
 export const runTest = (name: string, operation: () => void): void => {
+  attemptedTests++;
   try {
     operation();
   } catch (error) {
-    throw new Error(`${name}: ${error}`);
+    failedTests++;
+    console.error(`FAIL ${name}: ${error}`);
+    return;
   }
   completedTests++;
   console.log(`PASS ${name}`);
 };
 
 export const completeTests = (expectedTests: number): void => {
-  if (completedTests !== expectedTests) throw new Error("Test inventory did not execute completely");
-  console.log(`${completedTests}/${expectedTests} tests passed`);
+  if (attemptedTests !== expectedTests) throw new Error("Test inventory did not execute completely");
+  console.log(`${completedTests}/${attemptedTests} tests passed; ${failedTests} failed`);
+  if (failedTests !== 0) throw new Error("Compiled tests failed");
 };
