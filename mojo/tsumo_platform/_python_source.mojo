@@ -148,7 +148,7 @@ def regular_expression_replace(pattern, replacement, input, limit):
 
 def _markdown():
     parser = MarkdownIt("commonmark", {"html": True, "linkify": True})
-    parser.enable(["table", "strikethrough"])
+    parser.enable(["table", "strikethrough", "linkify"])
     parser.renderer.rules["s_open"] = lambda tokens, index, options, environment: "<del>"
     parser.renderer.rules["s_close"] = lambda tokens, index, options, environment: "</del>"
     parser.use(footnote_plugin)

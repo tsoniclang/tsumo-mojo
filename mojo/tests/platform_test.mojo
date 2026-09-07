@@ -25,6 +25,8 @@ def main() raises:
     assert_true(document.render().find("https://new.test") >= 0)
     assert_true(document.render().find("<del>old</del>") >= 0)
     assert_true(document.table_of_contents().find("#intro") >= 0)
+    var linked = MarkdownDocument("Visit https://tsonic.org.")
+    assert_true(linked.render().find('<a href="https://tsonic.org">https://tsonic.org</a>.') >= 0)
 
     var unsafe_document = MarkdownDocument("# Safe heading\n\n[Unsafe](javascript:alert(1))")
     assert_equal(unsafe_document.occurrence_count(), 2)
