@@ -149,6 +149,8 @@ def regular_expression_replace(pattern, replacement, input, limit):
 def _markdown():
     parser = MarkdownIt("commonmark", {"html": True, "linkify": True})
     parser.enable(["table", "strikethrough"])
+    parser.renderer.rules["s_open"] = lambda tokens, index, options, environment: "<del>"
+    parser.renderer.rules["s_close"] = lambda tokens, index, options, environment: "</del>"
     parser.use(footnote_plugin)
     parser.use(tasklists_plugin)
     return parser
@@ -191,6 +193,8 @@ def _set_attr(token, name, value):
 class Document:
     def __init__(self, source):
         self.parser = _markdown()
+        self.validate_destination = self.parser.validateLink
+        self.parser.validateLink = lambda destination: True
         self.tokens = self.parser.parse(source)
         self.occurrences = []
         self.replacements = {}
@@ -314,13 +318,22 @@ class Document:
         ]
         return [holder]
 
+    def _render_tokens(self, tokens):
+        for token in tokens:
+            for child in token.children or []:
+                if child.type not in ("link_open", "image"):
+                    continue
+                attribute = "href" if child.type == "link_open" else "src"
+                destination = _attr(child, attribute)
+                if not self.validate_destination(destination):
+                    raise ValueError(f"Unsafe Markdown destination cannot be rendered: {destination}")
+        return self.parser.renderer.render(tokens, self.parser.options, {})
+
     def render(self):
-        return self.parser.renderer.render(self._modified_tokens(), self.parser.options, {})
+        return self._render_tokens(self._modified_tokens())
 
     def occurrence_html(self, index):
-        return self.parser.renderer.render(
-            self._modified_tokens(index), self.parser.options, {}
-        )
+        return self._render_tokens(self._modified_tokens(index))
 
     def plain_text(self):
         output = []

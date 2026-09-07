@@ -23,7 +23,21 @@ def main() raises:
     assert_equal(link.destination, "https://old.test")
     document.replace_url(1, "https://new.test")
     assert_true(document.render().find("https://new.test") >= 0)
+    assert_true(document.render().find("<del>old</del>") >= 0)
     assert_true(document.table_of_contents().find("#intro") >= 0)
+
+    var unsafe_document = MarkdownDocument("# Safe heading\n\n[Unsafe](javascript:alert(1))")
+    assert_equal(unsafe_document.occurrence_count(), 2)
+    assert_equal(unsafe_document.occurrence(1).destination, "javascript:alert(1)")
+    assert_true(unsafe_document.occurrence_html(0).find("Safe heading") >= 0)
+    var rejected = False
+    try:
+        _ = unsafe_document.render()
+    except:
+        rejected = True
+    assert_true(rejected)
+    unsafe_document.replace_url(1, "https://safe.test")
+    assert_true(unsafe_document.render().find('href="https://safe.test"') >= 0)
 
     var batch = MarkdownBatch()
     var index = batch.add_source("# Batch\n\nBody.")
