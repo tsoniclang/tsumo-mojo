@@ -41,7 +41,7 @@ diff -u "$VERIFY_ROOT/generated-pass-1.sha256" "$VERIFY_ROOT/generated-pass-2.sh
 
 echo "=== Mojo formatting ==="
 authored_before="$(find "$ROOT/mojo" -type f -name '*.mojo' -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
-"$PIXI_BIN" run --manifest-path "$ROOT/pixi.toml" mojo format -l 100 "$ROOT/mojo" \
+"$PIXI_BIN" run --manifest-path "$ROOT/pixi.toml" mojo format "$ROOT/mojo" \
   2>&1 | tee "$VERIFY_ROOT/platform-format.log"
 authored_after="$(find "$ROOT/mojo" -type f -name '*.mojo' -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
 test "$authored_before" = "$authored_after"
