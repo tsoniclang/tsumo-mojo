@@ -8,7 +8,7 @@ if (outputDirectory === undefined || publishPath === undefined || platformDirect
 }
 const root = resolve(outputDirectory);
 const manifest = JSON.parse(readFileSync(resolve(root, "mojo-native-build.json"), "utf8"));
-if (manifest.schemaVersion !== 2 || manifest.toolchain.commandEnvironment !== "posix") {
+if (manifest.schemaVersion !== 3 || manifest.toolchain.commandEnvironment !== "posix") {
   throw new Error("Expected the current POSIX Mojo native build contract.");
 }
 const condaPrefix = process.env.CONDA_PREFIX;
@@ -23,12 +23,16 @@ if (!/^[1-9][0-9]*$/u.test(jobs)) throw new Error("TSUMO_MOJO_JOBS must be a pos
 const linkArguments = [];
 for (const package_ of manifest.packages) {
   for (const unit of package_.translationUnits) {
-    if (unit.standard !== "c11") throw new Error("Unsupported native C dialect.");
+    if (!((unit.language === "c" && unit.standard === "c11") ||
+      (unit.language === "c++" && unit.standard === "c++17"))) {
+      throw new Error("Unsupported native translation-unit dialect.");
+    }
     const output = within(root, unit.objectPath);
     mkdirSync(dirname(output), { recursive: true });
     const staging = `${output}.${process.pid}.pending`;
-    run(manifest.toolchain.cCompiler, [
-      "-O3", "-fPIC", "-std=c11", `-I${resolve(condaPrefix, "include")}`,
+    const selection = unit.language === "c" ? manifest.toolchain.cCompiler : manifest.toolchain.cxxCompiler;
+    run(environmentPath(selection), [
+      "-O3", "-fPIC", `-std=${unit.standard}`, `-I${resolve(condaPrefix, "include")}`,
       ...package_.includeDirectories.map((directory) => `-I${within(condaPrefix, directory)}`),
       "-c", within(root, unit.sourcePath), "-o", staging,
     ]);
