@@ -22,4 +22,4 @@ pillow = "==12.1.1"
 quickjs = "==1.19.4"
 
 [tasks]
-format = "mojo format -l 100 mojo"
+format = "mojo format mojo"

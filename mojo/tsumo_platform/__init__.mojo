@@ -110,7 +110,9 @@ struct MarkdownBatch:
 
     def add_source(mut self, source: String) raises -> Int32:
         if self._rendered:
-            raise Error("markdown requests cannot be added after rendering begins")
+            raise Error(
+                "markdown requests cannot be added after rendering begins"
+            )
         var index = Int32(Int(py=self._requests.__len__()))
         self._requests.append(source)
         return index
@@ -179,22 +181,38 @@ def regular_expression_is_valid(pattern: String, flags: String) raises -> Bool:
     return Python.is_true(_module().regular_expression_is_valid(pattern, flags))
 
 
-def regular_expression_test(pattern: String, flags: String, input: String) raises -> Bool:
-    return Python.is_true(_module().regular_expression_test(pattern, flags, input))
+def regular_expression_test(
+    pattern: String, flags: String, input: String
+) raises -> Bool:
+    return Python.is_true(
+        _module().regular_expression_test(pattern, flags, input)
+    )
 
 
-def regular_expression_matches(pattern: String, input: String, limit: Int32) raises -> String:
-    return String(py=_module().regular_expression_matches(pattern, input, limit))
+def regular_expression_matches(
+    pattern: String, input: String, limit: Int32
+) raises -> String:
+    return String(
+        py=_module().regular_expression_matches(pattern, input, limit)
+    )
 
 
-def regular_expression_submatches(pattern: String, input: String, limit: Int32) raises -> String:
-    return String(py=_module().regular_expression_submatches(pattern, input, limit))
+def regular_expression_submatches(
+    pattern: String, input: String, limit: Int32
+) raises -> String:
+    return String(
+        py=_module().regular_expression_submatches(pattern, input, limit)
+    )
 
 
 def regular_expression_replace(
     pattern: String, replacement: String, input: String, limit: Int32
 ) raises -> String:
-    return String(py=_module().regular_expression_replace(pattern, replacement, input, limit))
+    return String(
+        py=_module().regular_expression_replace(
+            pattern, replacement, input, limit
+        )
+    )
 
 
 def resize_image(

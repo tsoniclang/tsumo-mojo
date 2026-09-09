@@ -8,12 +8,16 @@ from tsumo_platform import (
 
 
 def main() raises:
-    var plan = create_markdown_source_plan("# Intro\n\nSummary.\n\n<!--more-->\n\nDetail.")
+    var plan = create_markdown_source_plan(
+        "# Intro\n\nSummary.\n\n<!--more-->\n\nDetail."
+    )
     assert_true(plan.full_source.find("<!--more-->") < 0)
     assert_equal(plan.summary_source, "# Intro\n\nSummary.\n\n")
     assert_true(plan.toc_source.find("Detail.") >= 0)
 
-    var document = MarkdownDocument("# Intro\n\n[site](https://old.test)\n\n~~old~~ new")
+    var document = MarkdownDocument(
+        "# Intro\n\n[site](https://old.test)\n\n~~old~~ new"
+    )
     assert_equal(document.occurrence_count(), 2)
     var heading = document.occurrence(0)
     assert_equal(heading.kind, "heading")
@@ -26,11 +30,20 @@ def main() raises:
     assert_true(document.render().find("<del>old</del>") >= 0)
     assert_true(document.table_of_contents().find("#intro") >= 0)
     var linked = MarkdownDocument("Visit https://tsonic.org.")
-    assert_true(linked.render().find('<a href="https://tsonic.org">https://tsonic.org</a>.') >= 0)
+    assert_true(
+        linked.render().find(
+            '<a href="https://tsonic.org">https://tsonic.org</a>.'
+        )
+        >= 0
+    )
 
-    var unsafe_document = MarkdownDocument("# Safe heading\n\n[Unsafe](javascript:alert(1))")
+    var unsafe_document = MarkdownDocument(
+        "# Safe heading\n\n[Unsafe](javascript:alert(1))"
+    )
     assert_equal(unsafe_document.occurrence_count(), 2)
-    assert_equal(unsafe_document.occurrence(1).destination, "javascript:alert(1)")
+    assert_equal(
+        unsafe_document.occurrence(1).destination, "javascript:alert(1)"
+    )
     assert_true(unsafe_document.occurrence_html(0).find("Safe heading") >= 0)
     var rejected = False
     try:
