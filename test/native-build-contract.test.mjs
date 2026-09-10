@@ -10,8 +10,8 @@ const scratch = resolve(repository, ".temp/native-build-contract");
 mkdirSync(scratch, { recursive: true });
 
 for (const fail of [false, true]) {
-  for (const language of [undefined, "c", "c++"]) {
-  test(`native component publication preserves package identity${fail ? " and prior output on failure" : ""}${language ? ` with ${language} units` : ""}`, () => {
+  for (const [language, standard] of [[undefined, undefined], ["c", "c11"], ["c++", "c++17"], ["c++", "c++20"]]) {
+  test(`native component publication preserves package identity${fail ? " and prior output on failure" : ""}${language ? ` with ${standard} units` : ""}`, () => {
     const root = mkdtempSync(resolve(scratch, "case-"));
     const binaries = resolve(root, "bin");
     mkdirSync(binaries);
@@ -35,6 +35,7 @@ for (const fail of [false, true]) {
       "const fs = await import('node:fs');",
       "const args = process.argv.slice(2);",
       "if (!args.includes('-std=' + process.env.EXPECT_NATIVE_STD)) process.exit(24);",
+      "if (!args.includes('-I' + process.env.EXPECT_SOURCE_INCLUDE)) process.exit(25);",
       "fs.writeFileSync(args[args.indexOf('-o') + 1], 'compiled-native-unit');",
     ].join("\n"));
     chmodSync(nativeCompiler, 0o755);
@@ -44,15 +45,15 @@ for (const fail of [false, true]) {
     const published = resolve(root, "published.mojoc");
     writeFileSync(published, "previous-published");
     writeFileSync(resolve(root, "mojo-native-build.json"), JSON.stringify({
-      schemaVersion: 3,
+      schemaVersion: 4,
       toolchain: {
         commandEnvironment: "posix", compilerVersion: "test-version",
         cCompiler: { environmentVariable: "CONDA_PREFIX", path: "bin/native-compiler" },
         cxxCompiler: { environmentVariable: "CONDA_PREFIX", path: "bin/native-compiler" },
       },
       packages: language ? [{
-        includeDirectories: [], translationUnits: [{
-          language, standard: language === "c" ? "c11" : "c++17",
+        includeDirectories: [], sourceIncludeDirectories: ["packages/.native/example/include"], translationUnits: [{
+          language, standard,
           sourcePath: language === "c" ? "source.c" : "source.cpp",
           objectPath: "build/unit.o",
         }],
@@ -69,7 +70,8 @@ for (const fail of [false, true]) {
       env: {
         ...process.env, PATH: `${binaries}${delimiter}${process.env.PATH}`,
         CONDA_PREFIX: root, FAIL_NATIVE_BUILD: fail ? "1" : "0",
-        EXPECT_NATIVE_STD: language === "c" ? "c11" : "c++17",
+        EXPECT_NATIVE_STD: standard ?? "",
+        EXPECT_SOURCE_INCLUDE: resolve(root, "packages/.native/example/include"),
       },
     });
     assert.ifError(result.error);
