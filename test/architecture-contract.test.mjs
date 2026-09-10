@@ -247,6 +247,9 @@ test("the Pixi project pins the complete native toolchain and platform dependenc
   const pixi = readFileSync(join(repoRoot, "pixi.toml"), "utf8");
   for (const dependency of [
     'mojo = "==1.1.0.dev2026083005"',
+    'c-ares = "==1.34.8"',
+    'libuv = "==1.51.0"',
+    'libcurl = "==8.21.0"',
     'linkify-it-py = "==2.0.3"',
     'markdown-it-py = "==4.0.0"',
     'mdit-py-plugins = "==0.5.0"',
