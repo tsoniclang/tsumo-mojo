@@ -62,10 +62,9 @@ const parseDelimitedFrontMatter = (
   sourcePath: string | undefined,
 ): ParsedContent => {
   const frontMatterLines: string[] = [];
-  let bodyStart: int32 = lines.length;
   for (let index: int32 = 1; index < lines.length; index++) {
     if (lines[index]!.trim() === delimiter) {
-      bodyStart = index + 1;
+      const bodyStart: int32 = index + 1;
       const body = lines.slice(bodyStart).join("\n").trimStart();
       const frontMatter = format === "yaml"
         ? parseYamlFrontMatter(frontMatterLines, sourcePath)

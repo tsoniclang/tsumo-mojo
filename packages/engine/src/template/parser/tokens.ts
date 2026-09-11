@@ -122,7 +122,6 @@ export const scanTemplateSegments = (template: string, sourcePath?: string): Tem
         lastSegment.column,
       );
       segments.push(trimmed);
-      lastSegment = trimmed;
     }
 
     const actionSegment = new TemplateSegment(true, action, position.line, position.column);

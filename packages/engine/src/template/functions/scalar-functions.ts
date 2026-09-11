@@ -512,7 +512,7 @@ export const callScalarFunction = (
       const a = args[0]!;
       const b = args[1]!;
 
-      let cmp = 0;
+      let cmp: number;
       // Handle VersionStringValue comparisons using semver semantics
       if (a instanceof VersionStringValue || b instanceof VersionStringValue) {
         const av = toPlainString(a);

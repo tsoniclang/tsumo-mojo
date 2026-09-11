@@ -177,7 +177,7 @@ export class I18nStore {
     for (let index: int32 = 0; index < files.length; index++) {
       const file = files[index]!;
       const extension = extname(file).toLowerCase();
-      let format = "";
+      let format: string;
       if (extension === ".yaml" || extension === ".yml") format = "yaml";
       else if (extension === ".toml") format = "toml";
       else if (extension === ".json") format = "json";

@@ -283,7 +283,7 @@ class TemplateParser {
           tokens[tokenIndex + 2]!.startsWith("$") &&
           (tokens[tokenIndex + 3] === ":=" || tokens[tokenIndex + 3] === "=");
 
-        let expressionTokens: string[] = [];
+        let expressionTokens: string[];
         if (hasKeyValueDeclaration) {
           keyVariable = substringFrom(tokens[tokenIndex]!, 1);
           valueVariable = substringFrom(tokens[tokenIndex + 2]!, 1);
