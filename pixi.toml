@@ -1,10 +1,10 @@
 [workspace]
 name = "tsumo-mojo"
-channels = ["conda-forge", "https://conda.modular.com/max/"]
+channels = ["conda-forge", "https://conda.modular.com/max-nightly/"]
 platforms = ["linux-64"]
 
 [dependencies]
-mojo = "==1.0.0"
+mojo = "==1.1.0.dev2026083005"
 brotli = "==1.2.0"
 c-compiler = "==2.0.0"
 c-ares = "==1.34.8"

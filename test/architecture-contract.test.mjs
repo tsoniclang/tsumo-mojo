@@ -246,7 +246,7 @@ test("all compiler products use one user-owned Mojo project contract", () => {
 test("the Pixi project pins the complete native toolchain and platform dependencies", () => {
   const pixi = readFileSync(join(repoRoot, "pixi.toml"), "utf8");
   for (const dependency of [
-    'mojo = "==1.0.0"',
+    'mojo = "==1.1.0.dev2026083005"',
     'c-ares = "==1.34.8"',
     'libuv = "==1.51.0"',
     'libcurl = "==8.21.0"',
