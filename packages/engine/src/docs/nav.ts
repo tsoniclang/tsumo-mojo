@@ -91,7 +91,7 @@ const resolveMarkdownNavLink = (
     repoPath = trimEndChar(trimStartChar(repoPathRaw.trim(), slash), slash);
   }
   const hasRepoPath = repoPath !== "";
-  let resolvedRel: string | undefined = undefined;
+  let resolvedRel: string | undefined;
 
   if (pathPart.startsWith("/")) {
     resolvedRel = trimStartChar(pathPart, slash);

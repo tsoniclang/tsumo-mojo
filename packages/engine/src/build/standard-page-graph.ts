@@ -63,7 +63,6 @@ const createContentPages = (
   for (let index = 0; index < sources.length; index++) {
     const source = sources[index]!;
     const emptyPages: PageContext[] = [];
-    const emptyStrings: string[] = [];
     const emptyHtml = new HtmlString("");
     const page = new PageContext(
       source.title,

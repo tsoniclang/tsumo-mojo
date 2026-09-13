@@ -257,7 +257,6 @@ const parseParams = (
     if (peek2 === ">}" || peek2 === "%}" || peek2 === "/>" || peek2 === "/%") break;
 
     let key = "";
-    let value = "";
     let foundEquals = false;
 
     while (!state.atEnd()) {
@@ -287,6 +286,7 @@ const parseParams = (
       }
       const q = state.peek(0);
       const quoted = q === "\"" || q === "'";
+      let value: string;
       if (quoted) {
         value = parseQuotedString(state, sourcePath, line, column);
       } else {

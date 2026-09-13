@@ -113,7 +113,7 @@ const maybeRewriteUrl = (urlValue: string, ctx: DocsLinkRewriteContext): string 
   const mountPrefixLower = ctx.mount.urlPrefix.toLowerCase();
   const pathLower = pathPart.toLowerCase();
 
-  let resolvedRel: string | undefined = undefined;
+  let resolvedRel: string | undefined;
   let escaped = false;
 
   if (pathPart.startsWith("/")) {

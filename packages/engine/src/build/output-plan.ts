@@ -120,7 +120,7 @@ export class SiteOutputPlan {
 
   generatedOutputCount(): int32 {
     let count: int32 = 0;
-    for (const unused of this.textByPath.values()) count++;
+    for (const _value of this.textByPath.values()) count++;
     return count;
   }
 
